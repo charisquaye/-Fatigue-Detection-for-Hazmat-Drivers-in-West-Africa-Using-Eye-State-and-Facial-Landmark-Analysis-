@@ -1,0 +1,21 @@
+sheet,field,value,extra,flag
+cover,status,CODED — SYNTHETIC,,SYNTHETIC
+cover,banners,128,,
+cover,labels,112,,
+cover,checking_gold,94,,
+cover,gone,18,,
+cover,gone_rate,0.140625,,
+cover,gold_rule,paired=yes AND label=checking,,
+cover,names,none,,
+p95,hour_0_none,0.1291,,within band
+p95,hour_1_none,0.1715,,within band
+p95,hour_2_none,0.1824,ataya=0.1781,within band
+p95,hour_3_ataya,0.2331,,shorten next duty
+p95,hour_4_ataya,0.2860,,shorten next duty
+p95,hour_5_ataya,0.3436,,SPLIT or STOP
+p95,hour_6_ataya,0.3832,,SPLIT or STOP
+roc,depot_cut,0.45,TPR=0.8639,FPR=0.1213
+roc,trunk_cut,0.55,TPR=0.6834,FPR=0.0209
+startle,near_miss_1,0.9355,samples=31,
+startle,near_miss_2,0.9677,samples=31,
+startle,near_miss_3,0.9355,samples=31,
