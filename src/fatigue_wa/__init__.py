@@ -1,15 +1,6 @@
-"""West Africa HAZMAT driver fatigue detection package."""
+"""WA-PERCLOS-HYS: fatigue detection for West African HAZMAT cabins."""
 
-__version__ = "1.0.0"
-__author__ = "Charis Quaye"
+from fatigue_wa.fusion import EvidenceFusion, FatigueState, HysteresisGate
+from fatigue_wa.metrics import EarSmoother, eye_aspect_ratio, mouth_aspect_ratio
 
-from fatigue_wa.pipeline import FatiguePipeline
-from fatigue_wa.metrics import eye_aspect_ratio, mouth_aspect_ratio, perclos
-
-__all__ = [
-    "FatiguePipeline",
-    "eye_aspect_ratio",
-    "mouth_aspect_ratio",
-    "perclos",
-    "__version__",
-]
+__version__ = "0.2.0"
