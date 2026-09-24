@@ -25,38 +25,45 @@ Thesis: Quaye, C. (2026). *Fatigue detection for HAZMAT drivers in West Africa u
 ```bash
 git pull
 python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+source .venv/bin/activate
 pip install -r requirements.txt
-export PYTHONPATH=src      # Windows: set PYTHONPATH=src
+export PYTHONPATH=src
 pytest tests -q
 python scripts/run_detector.py --camera 0
+python scripts/monday_sheet.py
 ```
-
-If you already cloned before the field-protocol commit, `git pull` first. Missing module errors (`field_protocol`) mean the working copy is stale.
 
 ## HUD line: closed= and drift=
 
-This is status, not a crash.
+Status, not a crash. `closed=1` is the Schmitt hold. `drift=` is gate open-eye EAR minus the slow open-eye EMA.
 
-- `closed=1` means the Schmitt gate is in the closed band (EAR dropped through theta_close and has not yet risen through theta_open).
-- `closed=0` means open.
-- `drift=` is gate EAR_open minus the slow open-eye EMA. A rising positive number over a long haul is the mid-shift sag the thesis tracks. It is not an error code.
+## Field protocol keys
 
-## Field protocol keys (observer, not the driver)
-
-The window must be focused. Keys do nothing if you used `--no-window`.
+Focus the OpenCV window. Do not use `--no-window` on a field run.
 
 | Key | Writes | Meaning |
 | --- | --- | --- |
-| `c` | `logs/alert_labels.csv` | Observer was checking the road / phone / papers after an alert |
-| `g` | `logs/alert_labels.csv` | Observer was gone; do not treat the last alert as a gold label |
-| `s` | `logs/rest_stops.csv` | Cycle stimulant at this rest stop: none, ataya, energy_drink, tramadol_coffee, cola_nut, other |
-| `1`–`9` | `logs/rest_stops.csv` | Karolinska Sleepiness Scale on that rest-stop row |
+| `c` | `logs/alert_labels.csv` | Observer was checking |
+| `g` | `logs/alert_labels.csv` | Observer was gone |
+| `s` | `logs/rest_stops.csv` | Cycle stimulant |
+| `1`-`9` | `logs/rest_stops.csv` | Karolinska score |
 | `q` | — | Quit |
 
-After a DROWSY or MICROSLEEP banner, press `c` or `g` before the next event. The HUD line turns cyan while a label is pending.
+No names in any CSV. Each protocol row now also stores `alert_unix_time` from the last DROWSY/MICROSLEEP banner.
 
-Rows have no names. Monday review is `python scripts/monday_sheet.py`.
+## Pair by Unix time
+
+```bash
+export PYTHONPATH=src
+python scripts/monday_sheet.py logs
+```
+
+That writes two nameless joins:
+
+- `logs/paired_alerts.csv` — label row + matching `alerts.csv` row. Match key is `alert_unix_time` when present, else the latest alert within 120 s before the keypress.
+- `logs/paired_rest_stops.csv` — rest-stop row + nearest prior alert within 2 h.
+
+`paired=yes` is a gold candidate only when `label=checking`. `label=gone` stays in the file so you can audit discarded banners. There is no driver-name column on purpose.
 
 ## Licence
 
