@@ -9,6 +9,15 @@ from typing import Optional
 
 from fatigue_wa.fusion import FatigueState, FusionResult
 
+_QUIET = {
+    FatigueState.ALERT,
+    FatigueState.CALIBRATING,
+    FatigueState.NO_FACE,
+    FatigueState.OPTICS_DIRTY,
+    FatigueState.DEGRADED,
+    FatigueState.SHARED_DEVICE,
+}
+
 
 class AlertManager:
     def __init__(self, cooldown_seconds: float = 4.0, escalate_after: int = 3, log_path: str = "logs/alerts.csv") -> None:
@@ -24,7 +33,15 @@ class AlertManager:
 
     def maybe_alert(self, result: FusionResult) -> Optional[str]:
         now = time.time()
-        if result.state in (FatigueState.ALERT, FatigueState.CALIBRATING, FatigueState.NO_FACE):
+        if result.state in _QUIET:
+            if result.state in (FatigueState.OPTICS_DIRTY, FatigueState.DEGRADED, FatigueState.SHARED_DEVICE):
+                if now - self._last_alert >= self.cooldown:
+                    self._last_alert = now
+                    with self.log_path.open("a", newline="", encoding="utf-8") as handle:
+                        csv.writer(handle).writerow(
+                            [f"{now:.3f}", result.state.value, f"{result.score:.3f}", "|".join(result.reasons), "false"]
+                        )
+                    return result.reasons[0] if result.reasons else result.state.value
             self._drowsy_streak = 0
             return None
         self._drowsy_streak += 1

@@ -33,16 +33,24 @@ def draw_hud(frame, output) -> None:
         "MICROSLEEP": (0, 0, 255),
         "CALIBRATING": (200, 200, 200),
         "NO_FACE": (128, 128, 128),
+        "OPTICS_DIRTY": (0, 140, 255),
+        "DEGRADED": (180, 180, 0),
+        "SHARED_DEVICE": (200, 100, 200),
     }.get(state, (255, 255, 255))
-    cv2.rectangle(frame, (8, 8), (430, 118), (0, 0, 0), -1)
+    cv2.rectangle(frame, (8, 8), (470, 128), (0, 0, 0), -1)
     cv2.putText(frame, f"STATE: {state}", (18, 36), cv2.FONT_HERSHEY_SIMPLEX, 0.7, colour, 2)
     cv2.putText(
         frame,
         f"EAR {output.ear:.3f}  MAR {output.mar:.3f}  PERCLOS {output.perclos:.2f}",
         (18, 64), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (230, 230, 230), 1,
     )
+    cv2.putText(
+        frame,
+        f"closed={int(output.closed)}  drift={output.ear_open_drift:+.3f}",
+        (18, 88), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (200, 200, 200), 1,
+    )
     if output.alert:
-        cv2.putText(frame, output.alert[:60], (18, 112), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 1)
+        cv2.putText(frame, output.alert[:60], (18, 118), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 1)
 
 
 def main() -> None:
@@ -64,7 +72,7 @@ def main() -> None:
         min_detection_confidence=float(cfg["landmarks"]["min_detection_confidence"]),
         min_tracking_confidence=float(cfg["landmarks"]["min_tracking_confidence"]),
     )
-    print("Detector running. Press q to quit.")
+    print("WA-PERCLOS-HYS running. Press q to quit.")
     try:
         while True:
             ok, frame = cap.read()
