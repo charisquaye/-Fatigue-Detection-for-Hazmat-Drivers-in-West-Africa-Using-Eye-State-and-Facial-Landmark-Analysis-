@@ -22,14 +22,21 @@ class FieldProtocol:
         root = Path(log_dir)
         self.alert_labels = root / "alert_labels.csv"
         self.rest_stops = root / "rest_stops.csv"
-        _ensure(self.alert_labels, ["unix_time", "label", "last_state", "score", "ear", "perclos"])
-        _ensure(self.rest_stops, ["unix_time", "stimulant", "kss", "hours_since_sleep", "note"])
+        _ensure(
+            self.alert_labels,
+            ["unix_time", "alert_unix_time", "label", "last_state", "score", "ear", "perclos"],
+        )
+        _ensure(
+            self.rest_stops,
+            ["unix_time", "alert_unix_time", "stimulant", "kss", "hours_since_sleep", "note"],
+        )
         self.last_state = "ALERT"
         self.last_score = 0.0
         self.last_ear = 0.0
         self.last_perclos = 0.0
+        self.last_alert_unix = 0.0
         self.pending_alert = False
-        self.status = "c=checking  g=gone  s=stimulant  1-5=KSS"
+        self.status = "c=checking  g=gone  s=stimulant  1-9=KSS"
 
     def note_frame(self, state: str, score: float, ear: float, perclos: float, alert: Optional[str]) -> None:
         self.last_state = state
@@ -37,16 +44,19 @@ class FieldProtocol:
         self.last_ear = ear
         self.last_perclos = perclos
         if alert and state in ("DROWSY", "MICROSLEEP"):
+            self.last_alert_unix = time.time()
             self.pending_alert = True
             self.status = "Label last alert: c=checking  g=gone"
 
     def label_alert(self, label: str) -> str:
         if label not in ("checking", "gone"):
             return "unknown label"
+        now = time.time()
         with self.alert_labels.open("a", newline="", encoding="utf-8") as handle:
             csv.writer(handle).writerow(
                 [
-                    f"{time.time():.3f}",
+                    f"{now:.3f}",
+                    f"{self.last_alert_unix:.3f}",
                     label,
                     self.last_state,
                     f"{self.last_score:.3f}",
@@ -62,9 +72,17 @@ class FieldProtocol:
         if stimulant not in STIMULANTS:
             stimulant = "other"
         kss = int(max(0, min(9, kss)))
+        now = time.time()
         with self.rest_stops.open("a", newline="", encoding="utf-8") as handle:
             csv.writer(handle).writerow(
-                [f"{time.time():.3f}", stimulant, str(kss), f"{hours_since_sleep:.1f}", note]
+                [
+                    f"{now:.3f}",
+                    f"{self.last_alert_unix:.3f}",
+                    stimulant,
+                    str(kss),
+                    f"{hours_since_sleep:.1f}",
+                    note,
+                ]
             )
         self.status = f"rest-stop {stimulant} KSS={kss}"
         return self.status
