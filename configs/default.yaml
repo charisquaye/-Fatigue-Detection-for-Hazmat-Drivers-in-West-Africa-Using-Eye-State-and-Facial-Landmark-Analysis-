@@ -1,4 +1,4 @@
-# Default configuration for WA-HAZMAT fatigue detector
+# Default configuration for WA-PERCLOS-HYS
 camera:
   index: 0
   width: 640
@@ -12,6 +12,10 @@ landmarks:
 
 metrics:
   ear_close_threshold: 0.21
+  ear_hysteresis_gap: 0.03
+  ema_alpha: 0.4
+  both_eyes_required: true
+  monocular_fallback: true
   mar_yawn_threshold: 0.60
   consecutive_closed_frames: 20
   perclos_window_seconds: 60
@@ -29,12 +33,37 @@ fusion:
     head_nod: 0.10
   drowsy_score_threshold: 0.45
   severe_score_threshold: 0.70
+  trunk_road_drowsy_threshold: 0.55
 
 adaptive:
   enable: true
   calibration_seconds: 8
+  min_valid_frames: 80
+  close_ratio: 0.68
   low_light_ear_scale: 0.92
   night_mode_luma_threshold: 70
+  ear_open_min: 0.18
+  ear_open_max: 0.45
+  midhaul_seconds: 2700
+  midhaul_clamp: 0.03
+  open_drift_alpha: 0.02
+
+optics:
+  sharpness_min: 18.0
+  glasses_dark_fraction: 0.62
+  sunset_hour_local: 18
+
+identity:
+  enable: true
+  mismatch_l2: 28.0
+
+imu:
+  enable: true
+  rough_rms: 2.4
+
+voice:
+  enable: true
+  energy_threshold: 0.035
 
 alerts:
   cooldown_seconds: 4.0
@@ -45,3 +74,4 @@ west_africa:
   corridor_profile: "tema_kumasi_night_tanker"
   assume_night_hauls: true
   sunglasses_mode: false
+  operating_point: "depot_road"
