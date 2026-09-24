@@ -23,6 +23,7 @@ def parse_args():
     parser.add_argument("--camera", type=int, default=None)
     parser.add_argument("--video", default=None)
     parser.add_argument("--no-window", action="store_true")
+    parser.add_argument("--logs", default="logs")
     return parser.parse_args()
 
 
@@ -54,7 +55,7 @@ def draw_hud(frame, output, proto: FieldProtocol) -> None:
     if output.alert:
         hint = output.alert[:54] + "  [c/g]"
     cv2.putText(frame, hint[:70], (18, 114), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 200, 255) if proto.pending_alert else (200, 200, 200), 1)
-    cv2.putText(frame, "c checking  g gone  s stimulant  1-9 KSS  q quit", (18, 138), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (160, 160, 160), 1)
+    cv2.putText(frame, "c check  g gone  s stim  1-9 KSS  n miss  q quit", (18, 138), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (160, 160, 160), 1)
 
 
 def main() -> None:
@@ -69,7 +70,7 @@ def main() -> None:
     import mediapipe as mp
     fps = cap.get(cv2.CAP_PROP_FPS) or cfg["camera"]["fps_hint"]
     pipeline = FatiguePipeline(cfg, fps=float(fps) if fps and fps > 1 else 25.0)
-    proto = FieldProtocol("logs")
+    proto = FieldProtocol(args.logs)
     stim_i = 0
     mesh = mp.solutions.face_mesh.FaceMesh(
         static_image_mode=False,
@@ -78,11 +79,8 @@ def main() -> None:
         min_detection_confidence=float(cfg["landmarks"]["min_detection_confidence"]),
         min_tracking_confidence=float(cfg["landmarks"]["min_tracking_confidence"]),
     )
-    print("WA-PERCLOS-HYS")
-    print("  c = I was checking   g = I was gone")
-    print("  s = cycle stimulant and write rest-stop row")
-    print("  1-9 = Karolinska on the last rest-stop write")
-    print("  q = quit")
+    print("WA-PERCLOS-HYS coded night")
+    print("  c checking   g gone   s stimulant   1-9 KSS   n near-miss   q quit")
     pending_kss = 0
     try:
         while True:
@@ -94,7 +92,10 @@ def main() -> None:
             h, w = frame.shape[:2]
             face = res.multi_face_landmarks[0] if res.multi_face_landmarks else None
             output = pipeline.process_mediapipe(face, w, h, frame_bgr=frame)
-            proto.note_frame(output.result.state.value, output.result.score, output.ear, output.perclos, output.alert)
+            proto.note_frame(
+                output.result.state.value, output.result.score, output.ear, output.perclos, output.alert,
+                face=face is not None,
+            )
             if args.no_window:
                 if output.alert:
                     print(output.alert)
@@ -111,6 +112,8 @@ def main() -> None:
             elif key == ord("s"):
                 stim_i = (stim_i + 1) % len(STIMULANTS)
                 print(proto.rest_stop(STIMULANTS[stim_i], pending_kss))
+            elif key == ord("n"):
+                print(proto.near_miss())
             elif ord("1") <= key <= ord("9"):
                 pending_kss = key - ord("0")
                 print(proto.rest_stop(STIMULANTS[stim_i], pending_kss))
