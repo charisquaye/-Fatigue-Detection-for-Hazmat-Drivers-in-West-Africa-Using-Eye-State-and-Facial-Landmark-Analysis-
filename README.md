@@ -2,11 +2,11 @@
 
 WA-PERCLOS-HYS: MediaPipe Face Mesh, EMA-smoothed EAR, two-threshold hysteresis, personal P60-median calibration, PERCLOS, PLCDB, and multi-cue fusion for petroleum tanker cabins.
 
+Thesis (Quaye, 2026) lives in this repository as `docs/THESIS.md`. Chapters 4.10, 5, 6.4, 6.5, 7 and Appendices A–C match the live code.
+
 States: `CALIBRATING`, `ALERT`, `DROWSY`, `MICROSLEEP`, `NO_FACE`, `OPTICS_DIRTY`, `DEGRADED` (glasses after dusk), `SHARED_DEVICE`.
 
-Thesis: Quaye, C. (2026). *Fatigue detection for HAZMAT drivers in West Africa using eye-state and facial landmark analysis.*
-
-## Chapter 4 rule (now in the live code)
+## Chapter 4 rule (live code)
 
 - EMA alpha 0.4 on EAR
 - Close when smoothed EAR < theta_close; stay closed until EAR > theta_open
@@ -18,28 +18,11 @@ Thesis: Quaye, C. (2026). *Fatigue detection for HAZMAT drivers in West Africa u
 - Mid-haul open-eye re-estimate clamped +/-0.03 of the gate value
 - Dirty-optic and after-dusk glasses flags
 - Face-hash shared-phone detect
-- Optional IMU-gated nod and mic-gated yawn
-
-## Install
-
-```bash
-git pull
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-export PYTHONPATH=src
-pytest tests -q
-python scripts/run_detector.py --camera 0
-python scripts/monday_sheet.py
-```
-
-## HUD line: closed= and drift=
-
-Status, not a crash. `closed=1` is the Schmitt hold. `drift=` is gate open-eye EAR minus the slow open-eye EMA.
+- Depot cut 0.45 / trunk cut 0.55 on the same night
 
 ## Field protocol keys
 
-Focus the OpenCV window. Do not use `--no-window` on a field run.
+Focus the OpenCV window.
 
 | Key | Writes | Meaning |
 | --- | --- | --- |
@@ -47,23 +30,39 @@ Focus the OpenCV window. Do not use `--no-window` on a field run.
 | `g` | `logs/alert_labels.csv` | Observer was gone |
 | `s` | `logs/rest_stops.csv` | Cycle stimulant |
 | `1`-`9` | `logs/rest_stops.csv` | Karolinska score |
+| `n` | `logs/near_misses.csv` | Near miss; starts 30 s startle clip |
 | `q` | — | Quit |
 
-No names in any CSV. Each protocol row now also stores `alert_unix_time` from the last DROWSY/MICROSLEEP banner.
+Automatic 1 Hz rows go to `logs/perclos_1hz.csv`. No names in any CSV. Each protocol row stores `alert_unix_time` from the last DROWSY/MICROSLEEP banner. HUD prints `closed=` (Schmitt hold) and `drift=` (open-eye sag).
 
-## Pair by Unix time
+## Gold set
+
+Sensitivity uses only `paired=yes` AND `label=checking`. Quote the gone rate on the same sheet. Do not bury it.
 
 ```bash
+git pull
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
 export PYTHONPATH=src
+pytest tests -q
+python scripts/run_detector.py --camera 0 --logs logs
 python scripts/monday_sheet.py logs
+python scripts/plot_deltas.py --logs logs --out logs/alert_time_deltas.png
+python scripts/analyze_haul.py --logs logs
+python scripts/overwrite_rostering.py --logs logs --out Tema_Kumasi_Rostering_PERCLOS.xlsx
 ```
 
-That writes two nameless joins:
+Pairing: exact `alert_unix_time` when present, else nearest prior alert within 120 s (labels) or 2 h (rest stops).
 
-- `logs/paired_alerts.csv` — label row + matching `alerts.csv` row. Match key is `alert_unix_time` when present, else the latest alert within 120 s before the keypress.
-- `logs/paired_rest_stops.csv` — rest-stop row + nearest prior alert within 2 h.
+## Synthetic coded night
 
-`paired=yes` is a gold candidate only when `label=checking`. `label=gone` stays in the file so you can audit discarded banners. There is no driver-name column on purpose.
+No on-road tanker video was labelled for the thesis. A 6.5 h Tema–Kumasi template (seed 42) exercises the Monday scripts. Cover status `CODED — SYNTHETIC` is not field performance. Replace with a real `logs/` folder and rerun `overwrite_rostering.py`.
+
+On that template: 128 banners, 94 checking, 18 gone (14.1%), median checking lag 8.3 s, PERCLOS p95 crosses 0.30 after hour 4 even with ataya, depot 0.45 TPR 0.86 / FPR 0.12, trunk 0.55 TPR 0.68 / FPR 0.02, startle blind 0–30 s ≈ 94–97%.
+
+## Ethics
+
+Keep landmarks and scores. Delete raw video after coding. No names, plates, or phone numbers. Refusal of the camera is allowed and is not stored as a name. A banner is not a disciplinary event.
 
 ## Licence
 
