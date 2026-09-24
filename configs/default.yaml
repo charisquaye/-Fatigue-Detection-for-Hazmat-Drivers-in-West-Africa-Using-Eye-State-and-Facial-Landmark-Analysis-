@@ -1,0 +1,47 @@
+# Default configuration for WA-HAZMAT fatigue detector
+camera:
+  index: 0
+  width: 640
+  height: 480
+  fps_hint: 25
+
+landmarks:
+  min_detection_confidence: 0.6
+  min_tracking_confidence: 0.5
+  max_num_faces: 1
+
+metrics:
+  ear_close_threshold: 0.21
+  mar_yawn_threshold: 0.60
+  consecutive_closed_frames: 20
+  perclos_window_seconds: 60
+  perclos_alert_threshold: 0.30
+  long_blink_seconds: 0.40
+  nod_pitch_degrees: 20.0
+  yawn_consecutive_frames: 12
+
+fusion:
+  weights:
+    perclos: 0.35
+    ear_closure: 0.25
+    long_blink: 0.15
+    yawn: 0.15
+    head_nod: 0.10
+  drowsy_score_threshold: 0.45
+  severe_score_threshold: 0.70
+
+adaptive:
+  enable: true
+  calibration_seconds: 8
+  low_light_ear_scale: 0.92
+  night_mode_luma_threshold: 70
+
+alerts:
+  cooldown_seconds: 4.0
+  escalate_after: 3
+  log_path: logs/alerts.csv
+
+west_africa:
+  corridor_profile: "tema_kumasi_night_tanker"
+  assume_night_hauls: true
+  sunglasses_mode: false
