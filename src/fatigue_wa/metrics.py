@@ -1,10 +1,10 @@
-"""Geometric fatigue metrics: EAR, MAR, PERCLOS, blinks, and head pose."""
+"""Geometric fatigue metrics: EAR, MAR, PERCLOS, PLCDB, EMA."""
 
 from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Deque
+from typing import Deque, Optional
 
 import numpy as np
 
@@ -35,6 +35,24 @@ def mouth_aspect_ratio(mouth: np.ndarray) -> float:
 
 def mean_ear(left_eye: np.ndarray, right_eye: np.ndarray) -> float:
     return 0.5 * (eye_aspect_ratio(left_eye) + eye_aspect_ratio(right_eye))
+
+
+class EarSmoother:
+    """Exponential moving average on EAR (thesis alpha = 0.4)."""
+
+    def __init__(self, alpha: float = 0.4) -> None:
+        self.alpha = float(alpha)
+        self.value: Optional[float] = None
+
+    def reset(self) -> None:
+        self.value = None
+
+    def update(self, ear: float) -> float:
+        if self.value is None:
+            self.value = float(ear)
+        else:
+            self.value = self.alpha * float(ear) + (1.0 - self.alpha) * self.value
+        return self.value
 
 
 def estimate_pitch_degrees(pose_points: dict, image_size: tuple) -> float:
