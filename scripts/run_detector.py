@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from fatigue_wa.config import load_config
+from fatigue_wa.field_protocol import STIMULANTS, FieldProtocol
 from fatigue_wa.pipeline import FatiguePipeline
 
 
@@ -25,7 +26,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def draw_hud(frame, output) -> None:
+def draw_hud(frame, output, proto: FieldProtocol) -> None:
     state = output.result.state.value
     colour = {
         "ALERT": (40, 180, 40),
@@ -37,7 +38,7 @@ def draw_hud(frame, output) -> None:
         "DEGRADED": (180, 180, 0),
         "SHARED_DEVICE": (200, 100, 200),
     }.get(state, (255, 255, 255))
-    cv2.rectangle(frame, (8, 8), (470, 128), (0, 0, 0), -1)
+    cv2.rectangle(frame, (8, 8), (620, 150), (0, 0, 0), -1)
     cv2.putText(frame, f"STATE: {state}", (18, 36), cv2.FONT_HERSHEY_SIMPLEX, 0.7, colour, 2)
     cv2.putText(
         frame,
@@ -49,8 +50,11 @@ def draw_hud(frame, output) -> None:
         f"closed={int(output.closed)}  drift={output.ear_open_drift:+.3f}",
         (18, 88), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (200, 200, 200), 1,
     )
+    hint = proto.status
     if output.alert:
-        cv2.putText(frame, output.alert[:60], (18, 118), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 1)
+        hint = output.alert[:54] + "  [c/g]"
+    cv2.putText(frame, hint[:70], (18, 114), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (0, 200, 255) if proto.pending_alert else (200, 200, 200), 1)
+    cv2.putText(frame, "c checking  g gone  s stimulant  1-9 KSS  q quit", (18, 138), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (160, 160, 160), 1)
 
 
 def main() -> None:
@@ -65,6 +69,8 @@ def main() -> None:
     import mediapipe as mp
     fps = cap.get(cv2.CAP_PROP_FPS) or cfg["camera"]["fps_hint"]
     pipeline = FatiguePipeline(cfg, fps=float(fps) if fps and fps > 1 else 25.0)
+    proto = FieldProtocol("logs")
+    stim_i = 0
     mesh = mp.solutions.face_mesh.FaceMesh(
         static_image_mode=False,
         max_num_faces=int(cfg["landmarks"]["max_num_faces"]),
@@ -72,7 +78,12 @@ def main() -> None:
         min_detection_confidence=float(cfg["landmarks"]["min_detection_confidence"]),
         min_tracking_confidence=float(cfg["landmarks"]["min_tracking_confidence"]),
     )
-    print("WA-PERCLOS-HYS running. Press q to quit.")
+    print("WA-PERCLOS-HYS")
+    print("  c = I was checking   g = I was gone")
+    print("  s = cycle stimulant and write rest-stop row")
+    print("  1-9 = Karolinska on the last rest-stop write")
+    print("  q = quit")
+    pending_kss = 0
     try:
         while True:
             ok, frame = cap.read()
@@ -83,13 +94,26 @@ def main() -> None:
             h, w = frame.shape[:2]
             face = res.multi_face_landmarks[0] if res.multi_face_landmarks else None
             output = pipeline.process_mediapipe(face, w, h, frame_bgr=frame)
-            if not args.no_window:
-                draw_hud(frame, output)
-                cv2.imshow("WA-HAZMAT Fatigue Detector", frame)
-                if cv2.waitKey(1) & 0xFF == ord("q"):
-                    break
-            elif output.alert:
-                print(output.alert)
+            proto.note_frame(output.result.state.value, output.result.score, output.ear, output.perclos, output.alert)
+            if args.no_window:
+                if output.alert:
+                    print(output.alert)
+                continue
+            draw_hud(frame, output, proto)
+            cv2.imshow("WA-HAZMAT Fatigue Detector", frame)
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord("q"):
+                break
+            if key == ord("c"):
+                print(proto.label_alert("checking"))
+            elif key == ord("g"):
+                print(proto.label_alert("gone"))
+            elif key == ord("s"):
+                stim_i = (stim_i + 1) % len(STIMULANTS)
+                print(proto.rest_stop(STIMULANTS[stim_i], pending_kss))
+            elif ord("1") <= key <= ord("9"):
+                pending_kss = key - ord("0")
+                print(proto.rest_stop(STIMULANTS[stim_i], pending_kss))
     finally:
         mesh.close()
         cap.release()
