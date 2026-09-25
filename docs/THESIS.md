@@ -1,6 +1,10 @@
-# Thesis addendum (Quaye 2026)
+# Thesis addendum
 
-These sections were written so the manuscript matches the live repository. The full Word thesis is `Quaye_Fatigue_Detection_HAZMAT_West_Africa_Thesis.docx` in the project folder. Nothing below is an on-road tanker result.
+**Author:** ADDO, Austine Gamey (22424506), MSc Data Science, Cohort C, Department of Computer Science, University of Ghana, College of Basic and Applied Sciences, September 2026.
+
+Seven chapters: (1) Introduction, (2) Literature review, (3) West African HAZMAT context, (4) WA-PERCLOS-HYS algorithm, (5) System implementation, (6) Evaluation, (7) Conclusion and recommendations.
+
+The full Word manuscript is the project file `Addo_Austine_Gamey_22424506_HAZMAT_Fatigue_Thesis.docx` (University crest on the title page). Nothing below is an on-road tanker result.
 
 ## 4.10 Field log, gold set, and consequence cuts
 
@@ -10,13 +14,13 @@ Pairing is done later. If `alert_unix_time` is present, the join is exact within
 
 Two score cuts live on the same night. Depot road and the loaded start use 0.45. The night trunk uses 0.55.
 
-PERCLOS 95th percentile by haul hour, split by the stimulant logged at the last rest stop, is the rostering input. The 0.30 line is a discussion band after Wierwille et al. (1994) and Dinges and Grace (1998), not a medical diagnosis.
+PERCLOS 95th percentile by haul hour, split by the stimulant logged at the last rest stop, is the rostering input.
 
 If mesh confidence stays under 0.45 for most of the 30 seconds after a near miss, the detector is blind in the minute that matters.
 
 ## 5. Implementation (live modules)
 
-`field_protocol.py` writes nameless observer keys, rest-stop stimulant and KSS, near-miss marks, and a 1 Hz PERCLOS series. `pairing.py` joins those rows to `alerts.csv` by Unix time. `scripts/monday_sheet.py` and `scripts/overwrite_rostering.py` are the Monday morning objects. `scripts/plot_deltas.py` draws observer lag. `scripts/analyze_haul.py` prints the gold-set counts. `scripts/run_detector.py` is the cab loop (`c` `g` `s` `1-9` `n` `q`).
+`field_protocol.py` writes nameless observer keys, rest-stop stimulant and KSS, near-miss marks, and a 1 Hz PERCLOS series. `pairing.py` joins those rows to `alerts.csv` by Unix time. `scripts/monday_sheet.py` and `scripts/overwrite_rostering.py` are the Monday morning objects. `scripts/run_detector.py` is the cab loop (`c` `g` `s` `1-9` `n` `q`).
 
 ## 6.4 Field protocol that was not run on a real tanker
 
@@ -32,7 +36,7 @@ If mesh confidence stays under 0.45 for most of the 30 seconds after a near miss
 
 Seed 42. 6.5 h template. 128 banners, 94 checking, 18 gone (14.1%), 16 untagged. Median checking lag 8.3 s.
 
-PERCLOS p95: hour 0–1 within band (0.13–0.17, none); hour 2 rest/ataya 0.18; hour 3–4 shorten next duty (0.23–0.29); hour 5–6 SPLIT or STOP (0.34–0.38). Ataya does not keep the late haul under 0.30.
+PERCLOS p95: hour 0–1 within band (0.13–0.17, none); hour 2 rest/ataya 0.18; hour 3–4 shorten next duty (0.23–0.29); hour 5–6 SPLIT or STOP (0.34–0.38).
 
 Latent-fatigue ROC (truth = latent ≥ 0.42, score = latent + N(0,0.10)):
 
@@ -41,12 +45,8 @@ Latent-fatigue ROC (truth = latent ≥ 0.42, score = latent + N(0,0.10)):
 
 Startle blind fraction 0–30 s: 94%, 97%, 94%.
 
-Workbook cover: `CODED — SYNTHETIC`. Replace with a real `logs/` folder and `overwrite_rostering.py`.
+Workbook cover: `CODED — SYNTHETIC`.
 
-## 7. Ethics (method, not an appendix footnote)
+## 7. Ethics
 
 Keep landmarks and scores. Delete raw video after coding. No names, plates, or phone numbers. Refusal of the camera is allowed and is not stored as a name. A banner is not a disciplinary event.
-
-## Appendix B operating points (added)
-
-Depot / drowsy score 0.45. Trunk score 0.55. Observer pairing window 120 s. Rest-stop pairing window 2 h. Startle clip 30 s. Mesh-lost floor 0.45. Mid-haul open-eye clamp ±0.03.
