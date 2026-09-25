@@ -2,7 +2,11 @@
 
 WA-PERCLOS-HYS: MediaPipe Face Mesh, EMA-smoothed EAR, two-threshold hysteresis, personal P60-median calibration, PERCLOS, PLCDB, and multi-cue fusion for petroleum tanker cabins.
 
-Thesis (Quaye, 2026) lives in this repository as `docs/THESIS.md`. Chapters 4.10, 5, 6.4, 6.5, 7 and Appendices A–C match the live code.
+**Thesis author (University of Ghana, MSc Data Science, Cohort C):** ADDO, Austine Gamey, student ID **22424506**, Department of Computer Science, College of Basic and Applied Sciences, September 2026.
+
+Seven chapters: Introduction; Literature review; West African HAZMAT context; WA-PERCLOS-HYS algorithm; System implementation; Evaluation; Conclusion and recommendations.
+
+Chapters 4.10, 5, 6.4, 6.5, 7 and Appendices A–D match the live code. The Word manuscript is the project file `Addo_Austine_Gamey_22424506_HAZMAT_Fatigue_Thesis.docx`. This repository holds the detector, pairing, rostering scripts, and `data/Tema_Kumasi_Rostering_PERCLOS.csv`.
 
 States: `CALIBRATING`, `ALERT`, `DROWSY`, `MICROSLEEP`, `NO_FACE`, `OPTICS_DIRTY`, `DEGRADED` (glasses after dusk), `SHARED_DEVICE`.
 
