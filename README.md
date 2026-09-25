@@ -2,15 +2,27 @@
 
 WA-PERCLOS-HYS: MediaPipe Face Mesh, EMA-smoothed EAR, two-threshold hysteresis, personal P60-median calibration, PERCLOS, PLCDB, and multi-cue fusion for petroleum tanker cabins.
 
-**Thesis author (University of Ghana, MSc Data Science, Cohort C):** ADDO, Austine Gamey, student ID **22424506**, Department of Computer Science, College of Basic and Applied Sciences, September 2026.
+**Thesis author (University of Ghana, MSc Data Science, Cohort C):** ADDO Austin Gamey, student ID **22424506**, Department of Computer Science, College of Basic and Applied Sciences, September 2026.
 
-Seven chapters: Introduction; Literature review; West African HAZMAT context; WA-PERCLOS-HYS algorithm; System implementation; Evaluation; Conclusion and recommendations.
+Copyright (c) 2026 Addo Austin Gamey. MIT licence.
 
-Chapters 4.10, 5, 6.4, 6.5, 7 and Appendices A–D match the live code. The Word manuscript is the project file `Addo_Austine_Gamey_22424506_HAZMAT_Fatigue_Thesis.docx`. This repository holds the detector, pairing, rostering scripts, and `data/Tema_Kumasi_Rostering_PERCLOS.csv`.
+Chapter order in the manuscript:
+
+1. Introduction
+2. Literature review
+3. West African HAZMAT context
+4. Research methodology
+5. WA-PERCLOS-HYS algorithm
+6. System implementation
+7. Results
+8. Discussion
+9. Conclusion and recommendations
+
+The Word file is `Addo_Austin_Gamey_22424506_HAZMAT_Fatigue_Thesis.docx` in the project folder. This repository holds the detector, pairing, rostering scripts, and `data/Tema_Kumasi_Rostering_PERCLOS.csv`.
 
 States: `CALIBRATING`, `ALERT`, `DROWSY`, `MICROSLEEP`, `NO_FACE`, `OPTICS_DIRTY`, `DEGRADED` (glasses after dusk), `SHARED_DEVICE`.
 
-## Chapter 4 rule (live code)
+## Algorithm rule (live code, Chapter 5)
 
 - EMA alpha 0.4 on EAR
 - Close when smoothed EAR < theta_close; stay closed until EAR > theta_open
@@ -37,11 +49,11 @@ Focus the OpenCV window.
 | `n` | `logs/near_misses.csv` | Near miss; starts 30 s startle clip |
 | `q` | — | Quit |
 
-Automatic 1 Hz rows go to `logs/perclos_1hz.csv`. No names in any CSV. Each protocol row stores `alert_unix_time` from the last DROWSY/MICROSLEEP banner. HUD prints `closed=` (Schmitt hold) and `drift=` (open-eye sag).
+Automatic 1 Hz rows go to `logs/perclos_1hz.csv`. No names in any CSV. HUD prints `closed=` and `drift=`.
 
 ## Gold set
 
-Sensitivity uses only `paired=yes` AND `label=checking`. Quote the gone rate on the same sheet. Do not bury it.
+Sensitivity uses only `paired=yes` AND `label=checking`. Quote the gone rate on the same sheet.
 
 ```bash
 git pull
@@ -51,23 +63,17 @@ export PYTHONPATH=src
 pytest tests -q
 python scripts/run_detector.py --camera 0 --logs logs
 python scripts/monday_sheet.py logs
-python scripts/plot_deltas.py --logs logs --out logs/alert_time_deltas.png
-python scripts/analyze_haul.py --logs logs
 python scripts/overwrite_rostering.py --logs logs --out Tema_Kumasi_Rostering_PERCLOS.xlsx
 ```
 
-Pairing: exact `alert_unix_time` when present, else nearest prior alert within 120 s (labels) or 2 h (rest stops).
-
 ## Synthetic coded night
 
-No on-road tanker video was labelled for the thesis. A 6.5 h Tema–Kumasi template (seed 42) exercises the Monday scripts. Cover status `CODED — SYNTHETIC` is not field performance. Replace with a real `logs/` folder and rerun `overwrite_rostering.py`.
-
-On that template: 128 banners, 94 checking, 18 gone (14.1%), median checking lag 8.3 s, PERCLOS p95 crosses 0.30 after hour 4 even with ataya, depot 0.45 TPR 0.86 / FPR 0.12, trunk 0.55 TPR 0.68 / FPR 0.02, startle blind 0–30 s ≈ 94–97%.
+No on-road tanker video was labelled. Seed 42, 6.5 h Tema–Kumasi template. Status `CODED — SYNTHETIC`. 128 banners, 94 checking, 18 gone (14.1%).
 
 ## Ethics
 
-Keep landmarks and scores. Delete raw video after coding. No names, plates, or phone numbers. Refusal of the camera is allowed and is not stored as a name. A banner is not a disciplinary event.
+Keep landmarks and scores. Delete raw video after coding. No names. A banner is not a disciplinary event.
 
 ## Licence
 
-MIT.
+MIT. Copyright (c) 2026 Addo Austin Gamey.
