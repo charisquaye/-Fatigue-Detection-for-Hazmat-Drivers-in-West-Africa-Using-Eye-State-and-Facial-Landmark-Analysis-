@@ -1,52 +1,24 @@
 # Thesis addendum
 
-**Author:** ADDO, Austine Gamey (22424506), MSc Data Science, Cohort C, Department of Computer Science, University of Ghana, College of Basic and Applied Sciences, September 2026.
+**Author:** ADDO, Austine Gamey (22424506), MSc Data Science, Cohort C, Department of Computer Science, University of Ghana.
 
-Seven chapters: (1) Introduction, (2) Literature review, (3) West African HAZMAT context, (4) WA-PERCLOS-HYS algorithm, (5) System implementation, (6) Evaluation, (7) Conclusion and recommendations.
+Word file: `Addo_Austine_Gamey_22424506_HAZMAT_Fatigue_Thesis.docx`
 
-The full Word manuscript is the project file `Addo_Austine_Gamey_22424506_HAZMAT_Fatigue_Thesis.docx` (University crest on the title page). Nothing below is an on-road tanker result.
+Chapters now in the Word manuscript:
 
-## 4.10 Field log, gold set, and consequence cuts
+1. Introduction
+2. Literature review
+3. West African HAZMAT context
+4. WA-PERCLOS-HYS algorithm
+5. System implementation
+6. Evaluation
+7. Conclusion and recommendations
+8. Research methodology (design, sample, procedure, YAML parameters, gold set, ethics as method)
+9. Results (Object A 120 sessions; Object B seed 42 night; p95; two cuts; startle; worked scores)
+10. Discussion of method and results (repo map vs `configs/default.yaml`)
 
-The detector is not the whole method. An observer in the jump seat presses `c` when they were watching the banner and `g` when they were not. `s` cycles the rest-stop stimulant list (none, ataya, energy drink, tramadol-coffee, cola nut, other). Keys `1`–`9` write a Karolinska score (Åkerstedt & Gillberg, 1990). `n` marks a near miss and opens a 30-second startle clip. Every protocol row stores the last alert Unix time. No name, plate, or phone number is written.
+Cuts in Chapter 8 Table 8.1 are copied from `configs/default.yaml` on this branch: ema_alpha 0.4, gap 0.03, close_ratio 0.68, gate 8 s, night scale 0.92, luma 70, PERCLOS window 60 s, closed frames 20, depot 0.45, trunk 0.55, severe 0.70, cooldown 4 s.
 
-Pairing is done later. If `alert_unix_time` is present, the join is exact within a 120-second window. Otherwise the latest prior alert in that window is used. Rest stops search two hours back. Gold analysis uses only rows with `paired=yes` and `label=checking`. The gone rate is reported on the same sheet.
+Object B (SYNTHETIC): 128 banners, 94 checking, 18 gone (14.1%), p95 hours 0–6 as in `data/Tema_Kumasi_Rostering_PERCLOS.csv`, depot TPR 0.86 / FPR 0.12, trunk TPR 0.68 / FPR 0.02, startle 94–97%.
 
-Two score cuts live on the same night. Depot road and the loaded start use 0.45. The night trunk uses 0.55.
-
-PERCLOS 95th percentile by haul hour, split by the stimulant logged at the last rest stop, is the rostering input.
-
-If mesh confidence stays under 0.45 for most of the 30 seconds after a near miss, the detector is blind in the minute that matters.
-
-## 5. Implementation (live modules)
-
-`field_protocol.py` writes nameless observer keys, rest-stop stimulant and KSS, near-miss marks, and a 1 Hz PERCLOS series. `pairing.py` joins those rows to `alerts.csv` by Unix time. `scripts/monday_sheet.py` and `scripts/overwrite_rostering.py` are the Monday morning objects. `scripts/run_detector.py` is the cab loop (`c` `g` `s` `1-9` `n` `q`).
-
-## 6.4 Field protocol that was not run on a real tanker
-
-1. One corridor. Tema–Kumasi night tanker is the default.
-2. Eight-second open-eye gate at the depot. Face hash only.
-3. Observer in the jump seat. Banner then `c` or `g`.
-4. Rest-stop `s` and Karolinska `1`–`9`. Near-miss `n`.
-5. Sensitivity only on `paired=yes` and `label=checking`. Quote the gone rate on the same table.
-6. One glasses-after-dusk or monocular night stays in the file.
-7. Raw video deleted after coding.
-
-## 6.5 Synthetic coded night (not a field result)
-
-Seed 42. 6.5 h template. 128 banners, 94 checking, 18 gone (14.1%), 16 untagged. Median checking lag 8.3 s.
-
-PERCLOS p95: hour 0–1 within band (0.13–0.17, none); hour 2 rest/ataya 0.18; hour 3–4 shorten next duty (0.23–0.29); hour 5–6 SPLIT or STOP (0.34–0.38).
-
-Latent-fatigue ROC (truth = latent ≥ 0.42, score = latent + N(0,0.10)):
-
-- depot 0.45: TPR 0.86, FPR 0.12
-- trunk 0.55: TPR 0.68, FPR 0.02
-
-Startle blind fraction 0–30 s: 94%, 97%, 94%.
-
-Workbook cover: `CODED — SYNTHETIC`.
-
-## 7. Ethics
-
-Keep landmarks and scores. Delete raw video after coding. No names, plates, or phone numbers. Refusal of the camera is allowed and is not stored as a name. A banner is not a disciplinary event.
+Nothing above is an on-road tanker result.
