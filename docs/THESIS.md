@@ -1,8 +1,8 @@
 # Thesis addendum
 
-**Author:** ADDO Austin Gamey (22424506), MSc Data Science, Cohort C, Department of Computer Science, University of Ghana.
+**Author:** Austine Gamey Addo (22424506), MSc Data Science, Cohort C, Department of Computer Science, University of Ghana.
 
-Copyright (c) 2026 Addo Austin Gamey. MIT licence on this repository.
+Copyright (c) 2026 Austine Gamey Addo. MIT licence on this repository.
 
 Chapter order:
 

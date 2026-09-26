@@ -2,9 +2,9 @@
 
 WA-PERCLOS-HYS: MediaPipe Face Mesh, EMA-smoothed EAR, two-threshold hysteresis, personal P60-median calibration, PERCLOS, PLCDB, and multi-cue fusion for petroleum tanker cabins.
 
-**Thesis author (University of Ghana, MSc Data Science, Cohort C):** ADDO Austin Gamey, student ID **22424506**, Department of Computer Science, College of Basic and Applied Sciences, September 2026.
+**Thesis author (University of Ghana, MSc Data Science, Cohort C):** Austine Gamey Addo, student ID **22424506**, Department of Computer Science, College of Basic and Applied Sciences, September 2026.
 
-Copyright (c) 2026 Addo Austin Gamey. MIT licence.
+Copyright (c) 2026 Austine Gamey Addo. MIT licence.
 
 Chapter order in the manuscript:
 
@@ -18,7 +18,12 @@ Chapter order in the manuscript:
 8. Discussion
 9. Conclusion and recommendations
 
-The Word file is `Addo_Austin_Gamey_22424506_HAZMAT_Fatigue_Thesis.docx` in the project folder. This repository holds the detector, pairing, rostering scripts, and `data/Tema_Kumasi_Rostering_PERCLOS.csv`.
+This repository holds the detector, pairing, rostering scripts, and `data/Tema_Kumasi_Rostering_PERCLOS.csv`.
+
+## Thesis documents
+
+- [Word thesis](docs/Austine_Gamey_Addo_22424506_HAZMAT_Fatigue_Thesis.docx)
+- [PDF thesis](docs/Austine_Gamey_Addo_22424506_HAZMAT_Fatigue_Thesis.pdf)
 
 States: `CALIBRATING`, `ALERT`, `DROWSY`, `MICROSLEEP`, `NO_FACE`, `OPTICS_DIRTY`, `DEGRADED` (glasses after dusk), `SHARED_DEVICE`.
 
@@ -76,4 +81,4 @@ Keep landmarks and scores. Delete raw video after coding. No names. A banner is 
 
 ## Licence
 
-MIT. Copyright (c) 2026 Addo Austin Gamey.
+MIT. Copyright (c) 2026 Austine Gamey Addo.
